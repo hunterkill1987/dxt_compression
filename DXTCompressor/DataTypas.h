@@ -14,27 +14,27 @@
 #pragma  pack(2)
 typedef struct                       /**** BMP file header structure ****/
 {
-	unsigned short bfType;           /* Magic number for file */
-	unsigned int   bfSize;           /* Size of file */
-	unsigned short bfReserved1;      /* Reserved */
-	unsigned short bfReserved2;      /* ... */
-	unsigned int   bfOffBits;        /* Offset to bitmap data */
+	uint16_t	bfType;           /* Magic number for file */
+	uint32_t	bfSize;           /* Size of file */
+	uint16_t	bfReserved1;      /* Reserved */
+	uint16_t	bfReserved2;      /* ... */
+	uint16_t	bfOffBits;        /* Offset to bitmap data */
 } BITMAPFILEHEADER;
 #pragma pack()
 
 typedef struct                       /**** BMP file info structure ****/
 {
-	unsigned int   biSize;           /* Size of info header */
-	int            biWidth;          /* Width of image */
-	int            biHeight;         /* Height of image */
-	unsigned short biPlanes;         /* Number of color planes */
-	unsigned short biBitCount;       /* Number of bits per pixel */
-	unsigned int   biCompression;    /* Type of compression to use */
-	unsigned int   biSizeImage;      /* Size of image data */
-	int            biXPelsPerMeter;  /* X pixels per meter */
-	int            biYPelsPerMeter;  /* Y pixels per meter */
-	unsigned int   biClrUsed;        /* Number of colors used */
-	unsigned int   biClrImportant;   /* Number of important colors */
+	uint32_t		biSize;           /* Size of info header */
+	int32_t			biWidth;          /* Width of image */
+	int32_t			biHeight;         /* Height of image */
+	uint16_t		biPlanes;         /* Number of color planes */
+	uint16_t		biBitCount;       /* Number of bits per pixel */
+	uint32_t		biCompression;    /* Type of compression to use */
+	uint32_t		biSizeImage;      /* Size of image data */
+	int32_t			biXPelsPerMeter;  /* X pixels per meter */
+	int32_t         biYPelsPerMeter;  /* Y pixels per meter */
+	uint32_t		biClrUsed;        /* Number of colors used */
+	uint32_t		biClrImportant;   /* Number of important colors */
 } BITMAPINFOHEADER;
 
 typedef struct PIXEL

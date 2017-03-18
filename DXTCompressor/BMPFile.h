@@ -18,6 +18,11 @@ private:
 	BITMAPINFOHEADER BitmapInfo;
 
 	void EncodeBC1();
+
+	bool ReadHeader(std::ifstream& stream);
+
+	bool ReadBitmapInfo(std::istream_iterator<uint8_t> it);
+
 public:
 
 	PIXELDATA* PixelData;
@@ -27,7 +32,7 @@ public:
 
 	BMPFile();
 
-	void ReadArrayPixel(std::ifstream& stream);
+	void ReadArrayPixel(std::istream_iterator<uint8_t> it);
 
 	void WriteFile();
 	~BMPFile();

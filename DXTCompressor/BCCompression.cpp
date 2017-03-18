@@ -85,6 +85,7 @@ PIXEL BCCompression::Blend(PIXEL& c0, PIXEL& c1)
 
 TEXEL BCCompression::EncodeBC1(PIXEL* Pixel)
 {
+	//TODO:: Fix compression on more complicated bitmap
 	TEXEL NewTexel;
 
 	if (Pixel != nullptr)
@@ -99,7 +100,6 @@ TEXEL BCCompression::EncodeBC1(PIXEL* Pixel)
 
 		for (int i = 0; i < TEXEL_SIZE; i++)
 		{
-			// Iterate through the colours and pick the closest to this one
 			uint8_t mask = (uint8_t)GetClosestPixel(Colors,COLOURS_SIZE,Pixel[i]);
 			int _idx = ((i + 1) * 2) - 1;
 
@@ -131,6 +131,34 @@ unsigned int BCCompression::GetClosestPixel(PIXEL* Colors,const int Size, PIXEL 
 
 PIXEL* BCCompression::DecodeBC1(TEXEL Texel)
 {
-	//TODO:: Decompression
-	return nullptr;
+	PIXEL Colors[4];
+
+	Colors[0] = Texel.rgb565_1.ToRGB();
+	Colors[1] = Texel.rgb565_2.ToRGB();
+	
+	if (Colors[0] > Colors[1])
+	{
+		Colors[2] = Lerp(Colors[0], Colors[1]);
+		Colors[3] = Lerp(Colors[1], Colors[0]);
+	}
+	else
+	{
+		Colors[2] = Blend(Colors[0], Colors[1]);
+		Colors[3].Black();
+	}
+
+	PIXEL* pixels = new PIXEL[TEXEL_SIZE];
+	for (int i = 0; i < TEXEL_SIZE ; i++)
+	{
+		int ret = 0;
+		int _idx = ((i + 1) * 2) - 1; 
+
+		int x = (Texel.Colors >> (_idx - 1)) & 1;
+		ret ^= (-x ^ ret) & (1 << 0);
+		x = (Texel.Colors >> _idx) & 1;
+		ret ^= (-x ^ ret) & (1 << 1);
+
+		pixels[i] = Colors[ret];
+	}
+	return pixels;
 }

@@ -4,19 +4,8 @@
 
 BMPFile::BMPFile()
 {
-	FileLoader* Fl = FileLoader::GetInstance();
-
-	Fl->Stream.seekg(0, std::ios::beg);
-
-	Fl->Stream.read((char*)&Header, sizeof(Header));
-	Fl->Stream.read((char*)&BitmapInfo, sizeof(BitmapInfo));
-
-	if (Header.bfSize > 0)
+	if (ReadHeader(FileLoader::GetInstance()->Stream))
 	{
-		PixelData = new PIXELDATA(BitmapInfo.biHeight, BitmapInfo.biWidth);
-
-		ReadArrayPixel(Fl->Stream);
-
 		if (PixelData != nullptr)
 		{
 			EncodeBC1();
@@ -25,16 +14,49 @@ BMPFile::BMPFile()
 	}
 }
 
+bool BMPFile::ReadHeader(std::ifstream& stream)
+{
+	std::istream_iterator<uint8_t> it(stream);
+	
+	FileLoader::ReadData(it, Header.bfSize);
+	FileLoader::ReadData(it, Header.bfType);
+	FileLoader::ReadData(it, Header.bfReserved1);
+	FileLoader::ReadData(it, Header.bfReserved2);
+	FileLoader::ReadData(it, Header.bfOffBits);
+
+	return ReadBitmapInfo(it);
+}
+
+bool BMPFile::ReadBitmapInfo(std::istream_iterator<uint8_t> it)
+{
+	FileLoader::ReadData(it, BitmapInfo.biSize);
+	FileLoader::ReadData(it, BitmapInfo.biWidth);
+	FileLoader::ReadData(it, BitmapInfo.biHeight);
+	FileLoader::ReadData(it, BitmapInfo.biPlanes);
+	FileLoader::ReadData(it, BitmapInfo.biBitCount);
+	FileLoader::ReadData(it, BitmapInfo.biCompression);
+	FileLoader::ReadData(it, BitmapInfo.biSizeImage);
+	FileLoader::ReadData(it, BitmapInfo.biXPelsPerMeter);
+	FileLoader::ReadData(it, BitmapInfo.biYPelsPerMeter);
+	FileLoader::ReadData(it, BitmapInfo.biClrUsed);
+	FileLoader::ReadData(it, BitmapInfo.biClrImportant);
+
+	if (BitmapInfo.biWidth >= 0 && BitmapInfo.biHeight >= 0)
+	{
+		PixelData = new PIXELDATA(BitmapInfo.biHeight, BitmapInfo.biWidth);
+		ReadArrayPixel(it);
+		return true;
+	}
+	return false;
+}
 void BMPFile::WriteFile()
 {
 
 }
 
-void BMPFile::ReadArrayPixel(std::ifstream& stream)
+void BMPFile::ReadArrayPixel(std::istream_iterator<uint8_t> it)
 {
 	uint8_t data[3];
-	std::istream_iterator<uint8_t> it(stream);
-
 	for (int i = 0; i < BitmapInfo.biHeight; i++)
 	{
 		for (int j = 0; j < BitmapInfo.biWidth; j++)
@@ -59,7 +81,7 @@ void BMPFile::EncodeBC1()
 {
 	DDSFile* DDS = new DDSFile();
 
-	DXT* Dxt = DDS->GetDDSHeader();
+	DXT* Dxt = DDS->DDSHeader;
 
 	PIXEL* sqr = new PIXEL[TEXEL_WIDTH * TEXEL_WIDTH];
 
@@ -102,7 +124,8 @@ void BMPFile::EncodeBC1()
 		}
 	}
 
-	DDS->SetDDSHeader(Dxt);
+	//DDS->SetDDSHeader(Dxt);
+	DDS->DDSHeader = Dxt;
 
 	DDS->SaveFile("DDSTest123.dds");
 }

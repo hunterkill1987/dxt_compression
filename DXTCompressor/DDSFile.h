@@ -18,16 +18,13 @@ class DDSFile
 {
 private:
 
-	DXT* DDSHeader;
+	bool ReadData(std::ifstream& stream);
 
-	void ReadTexleData(std::ifstream& stream);
-
-	void ReadTexel(std::istream_iterator<uint8_t>& it, int datasize, uint8_t* out);
+	void ReadHeaderData(std::istream_iterator<uint8_t>& it, DDSHEADER& Header);
 
 public:
 	
-	DXT* GetDDSHeader() { return DDSHeader; };
-	void SetDDSHeader(DXT* Header) { DDSHeader = Header; };
+	DXT* DDSHeader;
 
 	DDSFile();
 

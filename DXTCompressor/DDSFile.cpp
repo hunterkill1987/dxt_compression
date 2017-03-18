@@ -5,12 +5,8 @@
 DDSFile::DDSFile()
 {	
 	DDSHeader = new DXT();
-
-	FileLoader* Fl = FileLoader::GetInstance();
-
-	Fl->Stream.read((char*)&DDSHeader->Header, sizeof(DDSHeader->Header));
 	
-	if (DDSHeader->Header.dwSize == 0)
+	if (!ReadData(FileLoader::GetInstance()->Stream))
 	{
 		DDSHeader->dwMagic = DDS_MAGIC;
 
@@ -44,57 +40,77 @@ DDSFile::DDSFile()
 	}
 	else
 	{
-		ReadTexleData(Fl->Stream);
-		//if (DDSHeader->Texel != nullptr)
-		//{
-			DecodeBC1();
-		//}
+		DecodeBC1();
 	}
 }
 
-void DDSFile::ReadTexleData(std::ifstream& stream)
-{  
-	if (DDSHeader->dwMagic != DDS_MAGIC) return ;
+void DDSFile::ReadHeaderData(std::istream_iterator<uint8_t>& it, DDSHEADER& Header)
+{
+	int size = 0;
 
+	FileLoader::ReadData(it,Header.dwSize);
+	FileLoader::ReadData(it,Header.dwFlags);
+	FileLoader::ReadData(it,Header.dwHeight);
+	FileLoader::ReadData(it,Header.dwWidth);
+	FileLoader::ReadData(it,Header.dwPitchOrLinearSize);
+	FileLoader::ReadData(it,Header.dwDepth);
+	FileLoader::ReadData(it,Header.dwMipMapCount);
+
+	size = sizeof(Header.dwReserved1) / sizeof(uint32_t);
+	for (int i = 0; i < size; i++)
+	{
+		FileLoader::ReadData(it,Header.dwReserved1[i]);
+	}
+
+	FileLoader::ReadData(it, Header.ddspf.dwSize);
+	FileLoader::ReadData(it, Header.ddspf.dwFlags);
+	FileLoader::ReadData(it, Header.ddspf.dwFourCC);
+	FileLoader::ReadData(it, Header.ddspf.dwRGBBitCount);
+	FileLoader::ReadData(it, Header.ddspf.dwRBitMask);
+	FileLoader::ReadData(it, Header.ddspf.dwGBitMask);
+	FileLoader::ReadData(it, Header.ddspf.dwBBitMask);
+	FileLoader::ReadData(it, Header.ddspf.dwABitMask);
+
+	FileLoader::ReadData(it,Header.dwCaps1);
+	FileLoader::ReadData(it,Header.dwCaps2);
+
+	size = sizeof(Header.dwReserved2) / sizeof(uint32_t);
+	for (int i = 0; i < size; i++)
+	{
+		FileLoader::ReadData(it, Header.dwReserved2[i]);
+	}
+}
+
+bool DDSFile::ReadData(std::ifstream& stream)
+{  
+	std::istream_iterator<uint8_t> it(stream);
+	
 	stream.seekg(0, std::ios::end);
 	int length = stream.tellg();
 	stream.seekg(0, std::ios::beg);
 
-	if (DDSHeader->Header.dwSize != DDS_HEADER_SIZE || DDSHeader->Header.ddspf.dwSize != DDS_PIXELFORMAT_SIZE) return;
+	if (length < DDS_HEADER_SIZE) return false;
+
+	FileLoader::ReadData(it, DDSHeader->dwMagic);
+
+	ReadHeaderData(it, DDSHeader->Header);
+
+	if (DDSHeader->Header.dwSize != DDS_HEADER_SIZE ) return false;
 
 	int dataLength = length - DDS_HEADER_SIZE - sizeof(DDSHeader->dwMagic);
 	DDSHeader->TexelLenght = dataLength / sizeof(TEXEL);
 	DDSHeader->Texel = new TEXEL[DDSHeader->TexelLenght];
 
-	unsigned char* data = new unsigned char[2];
-	std::istream_iterator<uint8_t> it;
 	for (int i = 0; i < DDSHeader->TexelLenght; i++)
 	{
-		//TODO:: Fix Texelreading
-		uint8_t rgb[2];
-		ReadTexel(it, sizeof(rgb), rgb);
-		DDSHeader->Texel[i].rgb565_1.Value = *(uint16_t*)rgb;
+		FileLoader::ReadData(it, DDSHeader->Texel->rgb565_1.Value);
+		FileLoader::ReadData(it, DDSHeader->Texel->rgb565_2.Value);
+		FileLoader::ReadData(it, DDSHeader->Texel->Colors);
 
-		ReadTexel(it, sizeof(rgb), rgb);
-		DDSHeader->Texel[i].rgb565_2.Value = *(uint16_t*)rgb;
-
-		uint8_t colors[4];
-		ReadTexel(it, sizeof(colors), colors);
-		DDSHeader->Texel[i].Colors = *(uint32_t*)colors;
+		//DDSHeader->Texel->rgb565_1.ToRGB().Print();
+		//DDSHeader->Texel->rgb565_2.ToRGB().Print();
 	}
-}
-
-void DDSFile::ReadTexel(std::istream_iterator<uint8_t>& it, int datasize, uint8_t* out)
-{
-	std::istream_iterator<uint8_t> eos;
-	for (int i = 0; i < datasize; i++)
-	{
-		if (it != eos)
-		{
-			out[i] = *it;
-			++it;
-		}
-	}
+	return true;
 }
 
 void DDSFile::DecodeBC1()
@@ -122,7 +138,7 @@ void DDSFile::DecodeBC1()
 	BmpInfo.biClrUsed = 0;       
 	BmpInfo.biClrImportant=0;   
 
-	//BMP->PixelData = new PIXELDATA(BmpInfo.biHeight, BmpInfo.biWidth);
+	BMP->PixelData = new PIXELDATA(BmpInfo.biHeight, BmpInfo.biWidth);
 
 	int texelWidth = DDSHeader->Header.dwHeight / TEXEL_WIDTH;
 	int texelHeight = DDSHeader->Header.dwWidth / TEXEL_WIDTH;
@@ -147,9 +163,10 @@ void DDSFile::DecodeBC1()
 				{
 					x = (j * TEXEL_WIDTH) + l;
 
-					// Write pixel data from bottom to top
 					y = DDSHeader->Header.dwHeight - (((i * TEXEL_WIDTH) + k) + 1);
-					//BMP->PixelData->pixel[i][j] = ps[ps_idx++];
+
+					BMP->PixelData->pixel[y][x] = ps[ps_idx++];
+					BMP->PixelData->pixel[y][x].Print();
 				}
 			}
 		}

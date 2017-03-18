@@ -38,5 +38,17 @@ public:
 
 	void LoadFile(const char* Filename);
 
+	static void ReadData(std::istream_iterator<uint8_t>& it, int datasize, uint8_t* out);
+
+	static void ReadData(std::istream_iterator<uint8_t>& it, uint32_t& out);
+
+	static void ReadData(std::istream_iterator<uint8_t>& it, uint16_t& out);
+
+	static void ReadData(std::istream_iterator<uint8_t>& it, uint8_t& out);
+
+	static void ReadData(std::istream_iterator<uint8_t>& it, int32_t& out);
+
+	static void ReadData(std::istream_iterator<uint8_t>& it, int16_t& out);
+
 };
 
