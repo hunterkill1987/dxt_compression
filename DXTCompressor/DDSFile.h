@@ -2,7 +2,7 @@
 #include "FileLoader.h"
 #include "BMPFile.h"
 
-#define DDS_MAGIC				542327876 
+#define DDS_MAGIC				0x20534444 
 #define DDS_HEADER_SIZE			124
 #define DDS_PIXELFORMAT_SIZE	32
 #define DDSD_CAPS 				0x1
