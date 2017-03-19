@@ -16,8 +16,9 @@ BMPFile::BMPFile()
 
 bool BMPFile::ReadHeader(std::ifstream& stream)
 {
+	stream.seekg(2, std::ios::beg);
 	std::istream_iterator<uint8_t> it(stream);
-	
+
 	FileLoader::ReadData(it, Header.bfSize);
 	FileLoader::ReadData(it, Header.bfType);
 	FileLoader::ReadData(it, Header.bfReserved1);

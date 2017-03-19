@@ -176,7 +176,7 @@ void DDSFile::DecodeBC1()
 		}
 	}
 
-	BMP->SaveFile("BMPTest1.bmp");
+	//BMP->SaveFile("BMPTest1.bmp");
 }
 
 void DDSFile::SaveFile(const char* DDSfile)

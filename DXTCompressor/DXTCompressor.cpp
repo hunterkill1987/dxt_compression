@@ -7,7 +7,7 @@
 int main()
 {
 	FileLoader* FileLoader = FileLoader::GetInstance();
-	FileLoader->LoadFile("DDStest1.dds");
+	FileLoader->LoadFile("test.bmp");
 	FileLoader->DeleteInstance();
 	system("PAUSE");
     return 0;

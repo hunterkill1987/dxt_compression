@@ -14,9 +14,6 @@ friend class FileLoader;
 
 private:
 
-	BITMAPFILEHEADER Header;
-	BITMAPINFOHEADER BitmapInfo;
-
 	void EncodeBC1();
 
 	bool ReadHeader(std::ifstream& stream);
@@ -27,8 +24,8 @@ public:
 
 	PIXELDATA* PixelData;
 
-	void SetHeader(BITMAPFILEHEADER _Header) { Header = _Header; };
-	void SetBitmapInfo(BITMAPINFOHEADER _Info) { BitmapInfo = _Info; };
+	BITMAPFILEHEADER Header;
+	BITMAPINFOHEADER BitmapInfo;
 
 	BMPFile();
 

@@ -22,11 +22,15 @@ void FileLoader::LoadFile(const char* Filename)
 {
 	Stream.open(Filename, std::ios::binary);
 
-	if (Stream.good())
+	if (Stream.is_open())
 	{
-		//BMPFile* bmp = new BMPFile();
-		DDSFile* dds = new DDSFile();
-		//delete bmp;
+		if (Stream.good())
+		{
+			Stream.unsetf(std::ios::skipws);
+			BMPFile* bmp = new BMPFile();
+			//DDSFile* dds = new DDSFile();
+			//delete bmp;
+		}
 	}
 }
 
