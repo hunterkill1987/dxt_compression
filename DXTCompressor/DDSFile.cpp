@@ -5,7 +5,7 @@
 DDSFile::DDSFile()
 {	
 	DDSHeader = new DXT();
-	
+	FileLoader::GetInstance()->Stream.unsetf(std::ios::skipws);
 	if (!ReadData(FileLoader::GetInstance()->Stream))
 	{
 		DDSHeader->dwMagic = DDS_MAGIC;
@@ -83,21 +83,23 @@ void DDSFile::ReadHeaderData(std::istream_iterator<uint8_t>& it, DDSHEADER& Head
 
 bool DDSFile::ReadData(std::ifstream& stream)
 {  
-	std::istream_iterator<uint8_t> it(stream);
-	
 	stream.seekg(0, std::ios::end);
 	int length = stream.tellg();
 	stream.seekg(0, std::ios::beg);
 
 	if (length < DDS_HEADER_SIZE) return false;
 
+	std::istream_iterator<uint8_t> it(stream);
+
 	FileLoader::ReadData(it, DDSHeader->dwMagic);
 
-	//if (DDSHeader->dwMagic != DDS_MAGIC) return false;
+	if (DDSHeader->dwMagic != DDS_MAGIC) return false;
 
 	ReadHeaderData(it, DDSHeader->Header);
 
 	if (DDSHeader->Header.dwSize != DDS_HEADER_SIZE ) return false;
+
+	if (DDSHeader->Header.dwSize != DDS_HEADER_SIZE || DDSHeader->Header.ddspf.dwSize != DDS_PIXELFORMAT_SIZE) return false;
 
 	int dataLength = length - DDS_HEADER_SIZE - sizeof(DDSHeader->dwMagic);
 	DDSHeader->TexelLenght = dataLength / sizeof(TEXEL);
@@ -119,24 +121,13 @@ void DDSFile::DecodeBC1()
 	BMPFile* BMP = new BMPFile();
 
 	uint32_t HeaderSize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
+	BMP->Header.bfSize = FHEADERSIZE + sizeof(BITMAPINFOHEADER) + sizeof(PIXEL) * DDSHeader->Header.dwWidth * DDSHeader->Header.dwHeight;//((DDSHeader->Header.dwHeight *  DDSHeader->Header.dwHeight) * 3) + HeaderSize;
+	BMP->Header.bfSize = sizeof(BMP->Header) + sizeof(PIXEL);
 
-	BMP->Header.bfType = 0x4d42;
-	BMP->Header.bfSize = ((DDSHeader->Header.dwHeight *  DDSHeader->Header.dwHeight) * 3) + HeaderSize;
-	BMP->Header.bfReserved1 = 0;
-	BMP->Header.bfReserved2 = 0;
-	BMP->Header.bfOffBits = 0x36;
-
-	BMP->BitmapInfo.biSize = sizeof(BITMAPINFOHEADER);
 	BMP->BitmapInfo.biHeight = DDSHeader->Header.dwHeight;
 	BMP->BitmapInfo.biWidth = DDSHeader->Header.dwWidth;
-	BMP->BitmapInfo.biPlanes = 1;
-	BMP->BitmapInfo.biBitCount = 24;
-	BMP->BitmapInfo.biCompression = BI_RGB;
-	BMP->BitmapInfo.biSizeImage = 0;//DDSHeader->Header.dwWidth * DDSHeader->Header.dwHeight * (DDSHeader->Header.dwDepth / sizeof(uint8_t));;
-	BMP->BitmapInfo.biXPelsPerMeter = 0x0ec4;
-	BMP->BitmapInfo.biYPelsPerMeter = 0x0ec4;
-	BMP->BitmapInfo.biClrUsed = 0;
-	BMP->BitmapInfo.biClrImportant=0;
+
+	BMP->BitmapInfo.biSizeImage = DDSHeader->Header.dwWidth * DDSHeader->Header.dwHeight * 3;// (DDSHeader->Header.dwDepth / sizeof(uint8_t));
 
 	BMP->PixelData = new PIXELDATA(BMP->BitmapInfo.biHeight, BMP->BitmapInfo.biWidth);
 
@@ -176,7 +167,7 @@ void DDSFile::DecodeBC1()
 		}
 	}
 
-	//BMP->SaveFile("BMPTest1.bmp");
+	BMP->SaveFile("BMPTest1.bmp");
 }
 
 void DDSFile::SaveFile(const char* DDSfile)
@@ -233,9 +224,6 @@ void DDSFile::WriteFile(std::ostream& outstream)
 	
 	for (int i = 0; i < DDSHeader->TexelLenght; i++)
 	{
-		//DDSHeader->Texel[i].rgb565_1.ToRGB().Print();
-		//DDSHeader->Texel[i].rgb565_2.ToRGB().Print();
-
 		outstream.write((char*)&(DDSHeader->Texel[i].rgb565_1.Value), sizeof(uint16_t));
 		outstream.write((char*)&(DDSHeader->Texel[i].rgb565_1.Value), sizeof(uint16_t));
 

@@ -4,6 +4,7 @@
 
 BMPFile::BMPFile()
 {
+	FileLoader::GetInstance()->Stream.unsetf(std::ios::skipws);
 	if (ReadHeader(FileLoader::GetInstance()->Stream))
 	{
 		if (PixelData != nullptr)
@@ -11,6 +12,23 @@ BMPFile::BMPFile()
 			EncodeBC1();
 		}
 
+	}
+	else
+	{
+		Header.bfType = 0x4d42;
+		Header.bfReserved1 = 0;
+		Header.bfReserved2 = 0;
+		Header.bfOffBits = 0x36;
+
+		BitmapInfo.biSize = sizeof(BITMAPINFOHEADER);
+		BitmapInfo.biPlanes = 1;
+		BitmapInfo.biBitCount = 24;
+		BitmapInfo.biCompression = BI_RGB;
+		
+		BitmapInfo.biXPelsPerMeter = 0x0ec4;
+		BitmapInfo.biYPelsPerMeter = 0x0ec4;
+		BitmapInfo.biClrUsed = 0;
+		BitmapInfo.biClrImportant = 0;
 	}
 }
 
@@ -50,8 +68,44 @@ bool BMPFile::ReadBitmapInfo(std::istream_iterator<uint8_t> it)
 	}
 	return false;
 }
-void BMPFile::WriteFile()
+void BMPFile::SaveFile(const char* Filename)
 {
+	std::ofstream outstream;
+	outstream.open(Filename, std::ios::out | std::ios::binary | std::ios::trunc);
+	//outstream.seekp(0, std::ofstream::beg);
+	//outstream.unsetf(std::ios::skipws);
+
+	if (outstream.good() && PixelData != nullptr)
+	{
+		WriteHeader(outstream);
+		//WritePixelArray(outstream);
+		outstream.close();
+	}
+}
+
+void BMPFile::WriteHeader(std::ofstream& outstream)
+{
+
+	outstream.write((char*)(&Header.bfType),		sizeof(Header.bfType));
+	outstream.write((char*)(&Header.bfSize),		sizeof(Header.bfSize));
+	outstream.write((char*)(&Header.bfReserved1),	sizeof(Header.bfReserved1));
+	outstream.write((char*)(&Header.bfReserved2),	sizeof(Header.bfReserved2));
+	outstream.write((char*)(&Header.bfOffBits),		sizeof(Header.bfOffBits));
+
+	outstream.write((char*)&BitmapInfo, sizeof(BITMAPINFOHEADER));
+
+	int count = 0;
+	
+	for (int i = 0; i < BitmapInfo.biHeight; i++)
+	{
+		for (int j = 0; j < BitmapInfo.biWidth; j++)
+		{
+			outstream.write((char*)&(PixelData->pixel[i][j].bRed), sizeof(uint8_t));
+			outstream.write((char*)&(PixelData->pixel[i][j].bGreen), sizeof(uint8_t));
+			outstream.write((char*)&(PixelData->pixel[i][j].bBlue), sizeof(uint8_t));
+			count++;
+		}
+	}
 
 }
 

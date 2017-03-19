@@ -4,6 +4,7 @@
 #include "DDSFile.h"
 
 #define BI_RGB	0
+#define FHEADERSIZE 14
 
 class DDSfile;
 
@@ -20,6 +21,10 @@ private:
 
 	bool ReadBitmapInfo(std::istream_iterator<uint8_t> it);
 
+	void WriteHeader(std::ofstream& outstream);
+
+	void WritePixelArray(std::ofstream& outstream);
+
 public:
 
 	PIXELDATA* PixelData;
@@ -31,7 +36,7 @@ public:
 
 	void ReadArrayPixel(std::istream_iterator<uint8_t> it);
 
-	void WriteFile();
+	void SaveFile(const char* Filename);
 	~BMPFile();
 };
 

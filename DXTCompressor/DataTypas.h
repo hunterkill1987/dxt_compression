@@ -18,7 +18,7 @@ typedef struct                       /**** BMP file header structure ****/
 	uint32_t	bfSize;           /* Size of file */
 	uint16_t	bfReserved1;      /* Reserved */
 	uint16_t	bfReserved2;      /* ... */
-	uint16_t	bfOffBits;        /* Offset to bitmap data */
+	uint32_t	bfOffBits;        /* Offset to bitmap data */
 } BITMAPFILEHEADER;
 #pragma pack()
 

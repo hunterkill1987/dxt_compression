@@ -26,10 +26,10 @@ void FileLoader::LoadFile(const char* Filename)
 	{
 		if (Stream.good())
 		{
-			Stream.unsetf(std::ios::skipws);
-			BMPFile* bmp = new BMPFile();
-			//DDSFile* dds = new DDSFile();
+			//BMPFile* bmp = new BMPFile();
+			DDSFile* dds = new DDSFile();
 			//delete bmp;
+			Stream.close();
 		}
 	}
 }
