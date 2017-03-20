@@ -30,7 +30,7 @@ public:
 
 	virtual void WriteFile(std::ostream& outstream);
 
-	void SaveFile(const char* DDSfile);
+	void SaveFile();
 
 	void DecodeBC1();
 	~DDSFile();

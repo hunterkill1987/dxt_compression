@@ -167,13 +167,14 @@ void DDSFile::DecodeBC1()
 		}
 	}
 
-	BMP->SaveFile("BMPTest1.bmp");
+	BMP->SaveFile();
+	delete BMP;
 }
 
-void DDSFile::SaveFile(const char* DDSfile)
+void DDSFile::SaveFile()
 {
 	std::ofstream outstream;
-	outstream.open(DDSfile, std::ios::out | std::ios::binary);
+	outstream.open(FileLoader::GetFileName(), std::ios::out | std::ios::binary);
 	outstream.unsetf(std::ios::skipws);
 
 	if (outstream.good() && DDSHeader != nullptr)
@@ -225,7 +226,7 @@ void DDSFile::WriteFile(std::ostream& outstream)
 	for (int i = 0; i < DDSHeader->TexelLenght; i++)
 	{
 		outstream.write((char*)&(DDSHeader->Texel[i].rgb565_1.Value), sizeof(uint16_t));
-		outstream.write((char*)&(DDSHeader->Texel[i].rgb565_1.Value), sizeof(uint16_t));
+		outstream.write((char*)&(DDSHeader->Texel[i].rgb565_2.Value), sizeof(uint16_t));
 
 		outstream.write((char*)&(DDSHeader->Texel[i].Colors), sizeof(uint32_t));
 	}
@@ -234,4 +235,6 @@ void DDSFile::WriteFile(std::ostream& outstream)
 
 DDSFile::~DDSFile()
 {
+	delete[] DDSHeader->Texel;
+	delete DDSHeader;
 }

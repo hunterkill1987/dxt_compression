@@ -10,6 +10,7 @@
 #include <sstream>
 #include <iostream>
 
+#include <string>
 #include <cstdlib>
 #include <cstdio>
 #include <memory>
@@ -17,26 +18,45 @@
 #include <iterator>
 
 #include "DataTypas.h"
-#include "BMPFile.h"
-#include "DDSFile.h"
+
+
+class BMPFile;
+class DDSFile;
+
+enum EFileType
+{
+	UNKNOW = 0,
+	DDS = 1,
+	BMP = 2
+};
 
 class FileLoader
 {
 private:
 	FileLoader() {};
-	~FileLoader() {};
+	~FileLoader();
+
+	EFileType GetFileExt(std::string& str);
+
+	BMPFile* ImgBMP;
+
+	DDSFile* ImgDDS;
+
+	static char* Filename;
 
 public:
 
 	std::ifstream Stream;
 
+	void LoadFile(char* InFilename);
+
 	static FileLoader* GetInstance();
 
 	static FileLoader* Instance;
 
-	static void DeleteInstance();
+	static char* GetFileName();
 
-	void LoadFile(const char* Filename);
+	static void DeleteInstance();
 
 	static void ReadData(std::istream_iterator<uint8_t>& it, int datasize, uint8_t* out);
 

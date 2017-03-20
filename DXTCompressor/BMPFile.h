@@ -23,8 +23,6 @@ private:
 
 	void WriteHeader(std::ofstream& outstream);
 
-	void WritePixelArray(std::ofstream& outstream);
-
 public:
 
 	PIXELDATA* PixelData;
@@ -36,7 +34,7 @@ public:
 
 	void ReadArrayPixel(std::istream_iterator<uint8_t> it);
 
-	void SaveFile(const char* Filename);
+	void SaveFile();
 	~BMPFile();
 };
 

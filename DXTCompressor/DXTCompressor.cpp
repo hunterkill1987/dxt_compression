@@ -4,10 +4,10 @@
 #include "stdafx.h"
 #include "FileLoader.h"
 
-int main()
+int main(int argc, char* argv[])
 {
 	FileLoader* FileLoader = FileLoader::GetInstance();
-	FileLoader->LoadFile("DDSTest123.dds");
+	FileLoader->LoadFile(argv[1]);
 	FileLoader->DeleteInstance();
 	system("PAUSE");
     return 0;

@@ -34,7 +34,6 @@ BMPFile::BMPFile()
 
 bool BMPFile::ReadHeader(std::ifstream& stream)
 {
-	stream.seekg(2, std::ios::beg);
 	std::istream_iterator<uint8_t> it(stream);
 
 	FileLoader::ReadData(it, Header.bfSize);
@@ -68,12 +67,12 @@ bool BMPFile::ReadBitmapInfo(std::istream_iterator<uint8_t> it)
 	}
 	return false;
 }
-void BMPFile::SaveFile(const char* Filename)
+void BMPFile::SaveFile()
 {
 	std::ofstream outstream;
-	outstream.open(Filename, std::ios::out | std::ios::binary | std::ios::trunc);
+	outstream.open(FileLoader::GetFileName(), std::ios::out | std::ios::binary | std::ios::trunc);
 	//outstream.seekp(0, std::ofstream::beg);
-	//outstream.unsetf(std::ios::skipws);
+	outstream.unsetf(std::ios::skipws);
 
 	if (outstream.good() && PixelData != nullptr)
 	{
@@ -152,39 +151,37 @@ void BMPFile::EncodeBC1()
 	Dxt->Texel = new TEXEL[Dxt->TexelLenght];
 
 	int texIdx = 0 , x = 0, y = 0;
-
+	
 	for (int i = 0; i < TexelHeigth; i++)
 	{
 		for (int j = 0; j < TexelWidth; j++)
 		{
 			int idx = 0;
-			for (int l = 0; l < TEXEL_WIDTH; l++)
+			for (int k = 0; k < TEXEL_WIDTH; k++)
 			{
-				for (int k = 0; k < TEXEL_WIDTH; k++)
+				for (int l = 0; l < TEXEL_WIDTH; l++)
 				{
 					x = (j * TEXEL_WIDTH) + k;
 
 					y = BitmapInfo.biHeight - (((i * TEXEL_WIDTH) + l) + 1);
 
 					sqr[idx] = PixelData->pixel[y][x];
-
-					//sqr[idx].Print();
-
 					++idx;
 				}
 			}
-			 
+
 			Dxt->Texel[texIdx] = BCCompression::EncodeBC1(sqr);
 			++texIdx;
 		}
 	}
 
-	//DDS->SetDDSHeader(Dxt);
 	DDS->DDSHeader = Dxt;
 
-	DDS->SaveFile("DDSTest123.dds");
+	DDS->SaveFile();
+	delete DDS;
 }
 
 BMPFile::~BMPFile()
 {
+	delete PixelData;
 }

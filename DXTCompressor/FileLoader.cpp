@@ -1,7 +1,11 @@
 #include "stdafx.h"
 #include "FileLoader.h"
+#include "BMPFile.h"
+#include "DDSFile.h"
 
 FileLoader* FileLoader::Instance = 0;
+
+char* FileLoader::Filename = 0;
 
 FileLoader* FileLoader::GetInstance()
 {
@@ -18,22 +22,74 @@ void FileLoader::DeleteInstance()
 	Instance = nullptr;
 }
 
-void FileLoader::LoadFile(const char* Filename)
+FileLoader::~FileLoader()
 {
-	Stream.open(Filename, std::ios::binary);
+	if (ImgBMP != nullptr)
+		delete ImgBMP;
+
+	if (ImgDDS != nullptr)
+		delete ImgDDS;
+}
+
+EFileType FileLoader::GetFileExt(std::string& str)
+{
+	size_t i = str.rfind('.',str.length());
+	if (i != std::string::npos)
+	{
+		std::string Ext = str.substr(i + 1, str.length() - i);
+		str.erase(i , str.length() - i);
+		if (Ext.length() > 0)
+		{
+			if (Ext.compare("bmp") == 0)
+			{
+				str.append("D.dds");
+				Filename = const_cast<char * >(str.c_str());
+				return BMP;
+			}
+
+			if (Ext.compare("dds") == 0)
+			{
+				str.append("B.bmp");
+				Filename = const_cast<char * >(str.c_str());
+				return DDS;
+			}
+		}
+	}
+	return UNKNOW;
+}
+
+void FileLoader::LoadFile(char* InFilename)
+{
+	Stream.open(InFilename, std::ios::binary);
+
+	std::string str(InFilename);
 
 	if (Stream.is_open())
 	{
 		if (Stream.good())
 		{
-			//BMPFile* bmp = new BMPFile();
-			DDSFile* dds = new DDSFile();
-			//delete bmp;
+			switch (GetFileExt(str))
+			{
+				case BMP: 
+					ImgBMP = new BMPFile();
+					break;
+				case DDS:
+					ImgDDS = new DDSFile();
+					break;
+				case UNKNOW:
+					std::cout << "Unknow file type" << std::endl;
+					break;
+			}
+
 			Stream.close();
 		}
 	}
 }
 
+char* FileLoader::GetFileName()
+{
+	return Filename;
+}
 
 void FileLoader::ReadData(std::istream_iterator<uint8_t>& it, uint8_t& out)
 {

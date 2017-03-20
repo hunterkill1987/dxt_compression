@@ -5,10 +5,8 @@
 void BCCompression::ColorSpace(PIXEL*& Color , PIXEL*& Pixel)
 {
 	PIXEL RefColor;
-	PIXEL LowColor;
+	PIXEL LowColor(255,255,255);
 	PIXEL HiColor;
-
-	HiColor.bRed = HiColor.bBlue = HiColor.bGreen = 255;
 	
 	unsigned int LowDistance = LowColor.Distance(RefColor);
 	unsigned int HiDistance = HiColor.Distance(RefColor);
@@ -17,13 +15,13 @@ void BCCompression::ColorSpace(PIXEL*& Color , PIXEL*& Pixel)
 	{
 		unsigned int Dist = Pixel[i].Distance(RefColor);
 
-		if (Dist > LowDistance)
+		if (Dist < LowDistance)
 		{
 			LowColor = Pixel[i];
 			LowDistance = Dist;
 		}
 
-		if (Dist < HiDistance)
+		if (Dist > HiDistance)
 		{
 			HiColor = Pixel[i];
 			HiDistance = Dist;
