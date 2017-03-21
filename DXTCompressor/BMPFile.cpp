@@ -59,6 +59,16 @@ bool BMPFile::ReadBitmapInfo(std::istream_iterator<uint8_t> it)
 	FileLoader::ReadData(it, BitmapInfo.biClrUsed);
 	FileLoader::ReadData(it, BitmapInfo.biClrImportant);
 
+	if (BitmapInfo.biWidth % 4 != 0)
+	{
+		return false;
+	}
+
+	if (BitmapInfo.biHeight % 4 != 0)
+	{
+		return false;
+	}
+
 	if (BitmapInfo.biWidth >= 0 && BitmapInfo.biHeight >= 0)
 	{
 		PixelData = new PIXELDATA(BitmapInfo.biHeight, BitmapInfo.biWidth);

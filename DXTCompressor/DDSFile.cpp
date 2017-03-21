@@ -97,6 +97,16 @@ bool DDSFile::ReadData(std::ifstream& stream)
 
 	ReadHeaderData(it, DDSHeader->Header);
 
+	if (DDSHeader->Header.dwHeight % 4 != 0)
+	{
+		return false;
+	}
+
+	if (DDSHeader->Header.dwWidth % 4 != 0)
+	{
+		return false;
+	}
+
 	if (DDSHeader->Header.dwSize != DDS_HEADER_SIZE ) return false;
 
 	if (DDSHeader->Header.dwSize != DDS_HEADER_SIZE || DDSHeader->Header.ddspf.dwSize != DDS_PIXELFORMAT_SIZE) return false;
