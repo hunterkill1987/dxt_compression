@@ -71,13 +71,11 @@ void BMPFile::SaveFile()
 {
 	std::ofstream outstream;
 	outstream.open(FileLoader::GetFileName(), std::ios::out | std::ios::binary | std::ios::trunc);
-	//outstream.seekp(0, std::ofstream::beg);
 	outstream.unsetf(std::ios::skipws);
 
 	if (outstream.good() && PixelData != nullptr)
 	{
 		WriteHeader(outstream);
-		//WritePixelArray(outstream);
 		outstream.close();
 	}
 }
@@ -161,7 +159,7 @@ void BMPFile::EncodeBC1()
 			{
 				for (int l = 0; l < TEXEL_WIDTH; l++)
 				{
-					x = (j * TEXEL_WIDTH) + k;
+					x = BitmapInfo.biWidth - ((j * TEXEL_WIDTH) + k);
 
 					y = BitmapInfo.biHeight - (((i * TEXEL_WIDTH) + l) + 1);
 
@@ -178,6 +176,7 @@ void BMPFile::EncodeBC1()
 	DDS->DDSHeader = Dxt;
 
 	DDS->SaveFile();
+	DDS = nullptr;
 	delete DDS;
 }
 

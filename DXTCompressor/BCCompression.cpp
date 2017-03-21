@@ -77,13 +77,11 @@ PIXEL BCCompression::Blend(PIXEL& c0, PIXEL& c1)
 	uint8_t Blue = (c0.bBlue + c1.bBlue) / 2;
 
 	PIXEL BlendColor(Red, Green, Blue);
-	//BlendColor.Print();
 	return BlendColor;
 }
 
 TEXEL BCCompression::EncodeBC1(PIXEL* Pixel)
 {
-	//TODO:: Fix compression on more complicated bitmap
 	TEXEL NewTexel;
 
 	if (Pixel != nullptr)

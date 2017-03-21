@@ -199,16 +199,6 @@ public:
 
 	COLOR565 FromRGB(PIXEL& Pixel)
 	{
-		/*uint32_t red = (Pixel.bRed >> 16) & 0xFF;
-		uint32_t green= (Pixel.bGreen >> 8) & 0xFF;
-		uint32_t blue = Pixel.bBlue & 0xFF;
-
-		uint8_t  B = (blue >> 3) & 0x001F;
-		uint8_t  G = ((green >> 2) < 5) & 0x07E0;
-		uint8_t  R = ((red >> 3) < 11) & 0xF800;
-		
-		COLOR565 Colors(R|G|B);
-		*/
 		COLOR565 Colors(((Pixel.bRed % 32) << 11) + ((Pixel.bGreen % 64) << 6) + (Pixel.bBlue % 32));
 
 		return Colors;

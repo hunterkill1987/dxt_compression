@@ -84,7 +84,7 @@ void DDSFile::ReadHeaderData(std::istream_iterator<uint8_t>& it, DDSHEADER& Head
 bool DDSFile::ReadData(std::ifstream& stream)
 {  
 	stream.seekg(0, std::ios::end);
-	int length = stream.tellg();
+	int length = (int)stream.tellg();
 	stream.seekg(0, std::ios::beg);
 
 	if (length < DDS_HEADER_SIZE) return false;
@@ -111,7 +111,6 @@ bool DDSFile::ReadData(std::ifstream& stream)
 		FileLoader::ReadData(it, DDSHeader->Texel[i].rgb565_2.Value);
 		FileLoader::ReadData(it, DDSHeader->Texel[i].Colors);
 
-		//std::cout << "DDSHeader->Texel->rgb565_1.Value " << (int)DDSHeader->Texel->rgb565_1.Value << " DDSHeader->Texel->rgb565_2.Value " << (int)DDSHeader->Texel->rgb565_2.Value << std::endl;
 	}
 	return true;
 }
@@ -155,7 +154,7 @@ void DDSFile::DecodeBC1()
 			{
 				for (int l = 0; l < TEXEL_WIDTH; l++)
 				{
-					x = (j * TEXEL_WIDTH) + l;
+					x = DDSHeader->Header.dwWidth - ((j * TEXEL_WIDTH) + l);
 
 					y = DDSHeader->Header.dwHeight - (((i * TEXEL_WIDTH) + k) + 1);
 
@@ -168,6 +167,7 @@ void DDSFile::DecodeBC1()
 	}
 
 	BMP->SaveFile();
+	BMP = nullptr;
 	delete BMP;
 }
 

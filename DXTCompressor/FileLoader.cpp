@@ -60,17 +60,19 @@ EFileType FileLoader::GetFileExt(std::string& str)
 
 void FileLoader::LoadFile(char* InFilename)
 {
-	Stream.open(InFilename, std::ios::binary);
-
-	std::string str(InFilename);
-
-	if (Stream.is_open())
+	if (InFilename != nullptr)
 	{
-		if (Stream.good())
+		Stream.open(InFilename, std::ios::binary);
+
+		std::string str(InFilename);
+
+		if (Stream.is_open())
 		{
-			switch (GetFileExt(str))
+			if (Stream.good())
 			{
-				case BMP: 
+				switch (GetFileExt(str))
+				{
+				case BMP:
 					ImgBMP = new BMPFile();
 					break;
 				case DDS:
@@ -79,11 +81,13 @@ void FileLoader::LoadFile(char* InFilename)
 				case UNKNOW:
 					std::cout << "Unknow file type" << std::endl;
 					break;
-			}
+				}
 
-			Stream.close();
+				Stream.close();
+			}
 		}
 	}
+	return;
 }
 
 char* FileLoader::GetFileName()
